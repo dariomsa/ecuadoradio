@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: Radio Platinum Home
- * Description: Portada de radio con noticias recientes y paginación.
- * Version: 1.1.0
+ * Description: Portada de radio y cabecera y pie compartidos para todo el sitio.
+ * Version: 1.3.0
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -20,13 +20,49 @@ add_filter( 'template_include', function ( $template ) {
 }, 99 );
 
 add_action( 'wp_enqueue_scripts', function () {
-	if ( ! is_front_page() || is_feed() || is_embed() ) {
+	if ( is_feed() || is_embed() ) {
 		return;
 	}
 	$base = plugin_dir_url( __FILE__ ) . 'platinum-home/assets/';
-	wp_enqueue_style( 'platinum-home', $base . 'home.css', array(), '1.1.0' );
+	wp_enqueue_style( 'platinum-home', $base . 'home.css', array(), '1.3.0' );
 	wp_enqueue_script( 'platinum-home', $base . 'home.js', array(), '1.0.0', true );
 }, 100 );
+
+add_filter( 'body_class', function ( $classes ) {
+	if ( ! is_admin() && ! is_feed() && ! is_embed() ) {
+		$classes[] = 'platinum-home';
+	}
+	return array_unique( $classes );
+} );
+
+/** Reuse site navigation and footer without replacing the theme's page content. */
+add_filter( 'render_block_core/template-part', function ( $content, $block ) {
+	if ( is_admin() || is_feed() || is_embed() || wp_is_json_request() ) {
+		return $content;
+	}
+	$attributes = $block['attrs'] ?? array();
+	$slug       = $attributes['slug'] ?? '';
+	$tag        = $attributes['tagName'] ?? '';
+	$part       = '';
+	if ( 'header' === $slug || 'header' === $tag ) {
+		$part = 'header';
+	} elseif ( 'footer' === $slug || 'footer' === $tag ) {
+		$part = 'footer';
+	}
+	if ( ! $part && $slug ) {
+		$theme         = $attributes['theme'] ?? get_stylesheet();
+		$template_part = get_block_template( $theme . '//' . $slug, 'wp_template_part' );
+		if ( $template_part && in_array( $template_part->area, array( 'header', 'footer' ), true ) ) {
+			$part = $template_part->area;
+		}
+	}
+	if ( ! $part ) {
+		return $content;
+	}
+	ob_start();
+	require __DIR__ . '/platinum-home/' . $part . '.php';
+	return ob_get_clean();
+}, 10, 2 );
 
 add_action( 'customize_register', function ( $customizer ) {
 	$customizer->add_section( 'platinum_home', array(

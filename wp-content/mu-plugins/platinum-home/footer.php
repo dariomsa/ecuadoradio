@@ -1,5 +1,5 @@
 <?php
-/** Footer shared by the Radio Platinum homepage. */
+/** Footer shared by the homepage and theme templates. */
 defined( 'ABSPATH' ) || exit;
 
 $footer_links = array(
@@ -27,3 +27,4 @@ $footer_links = array(
 		</div>
 	</div>
 </footer>
+<div class="platinum-notice" role="status" hidden><?php esc_html_e( 'Enlace provisional. Próximamente disponible.', 'platinum-home' ); ?></div>
