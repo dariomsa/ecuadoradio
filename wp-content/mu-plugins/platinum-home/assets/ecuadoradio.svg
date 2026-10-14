@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="308" height="60" viewBox="0 0 308 60" role="img" aria-label="Ecuadoradio — cadena radial">
+  <text x="0" y="31" fill="#006ba4" font-family="Arial,sans-serif" font-size="40" font-weight="700" textLength="305" lengthAdjust="spacingAndGlyphs">EcuadoRadio</text>
+  <text x="2" y="51" fill="#242424" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="4">cadena radial</text>
+  <path d="M178 48h56" stroke="#f4d21e" stroke-width="3"/>
+  <path d="M234 48h38" stroke="#0874b4" stroke-width="3"/>
+  <path d="M272 48h17" stroke="#d22935" stroke-width="3"/>
+  <path d="M295 43q5 5 0 10m5-13q8 8 0 16" fill="none" stroke="#0874b4" stroke-width="3"/>
+</svg>

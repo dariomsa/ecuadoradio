@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="60" viewBox="0 0 216 60" role="img" aria-label="Radio Platinum">
+  <path fill="#bb1528" d="M2 8h8v44H2zM33 37h13l16 15H46z"/>
+  <path fill="#303030" d="M12 8h37l11 6H12zm0 9h46l7 6H12zm0 9h51l-6 6H12zm0 9h40l-9 6H12zm0 9h18v8H12z"/>
+  <path fill="#fff" d="M21 12h22c14 0 20 5 20 12s-7 13-22 13H21v-4h20c11 0 16-3 16-9s-5-8-16-8H21z"/>
+  <text x="74" y="34" fill="#bb1528" font-family="Arial,sans-serif" font-size="21" letter-spacing="1">RADIO</text>
+  <text x="74" y="51" fill="#303030" font-family="Arial,sans-serif" font-weight="700" font-size="21" letter-spacing="-.5">PLATINUM</text>
+</svg>
