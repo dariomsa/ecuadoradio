@@ -2,20 +2,18 @@
 /** Footer shared by the homepage and theme templates. */
 defined( 'ABSPATH' ) || exit;
 
-$footer_links = array(
-	__( 'Créditos', 'platinum-home' ),
-	__( 'Buzón Ciudadano', 'platinum-home' ),
-	__( 'Rendición de cuentas', 'platinum-home' ),
-	__( 'Código de ética', 'platinum-home' ),
-	__( 'Código Deontológico', 'platinum-home' ),
-);
 ?>
 <footer class="platinum-footer">
 	<div class="platinum-footer-top">
 		<nav class="platinum-container platinum-footer-links" aria-label="<?php esc_attr_e( 'Información institucional', 'platinum-home' ); ?>">
-			<?php foreach ( $footer_links as $label ) : ?>
-				<a href="#" data-placeholder><?php echo esc_html( $label ); ?></a>
-			<?php endforeach; ?>
+			<?php
+			wp_nav_menu( array(
+				'theme_location' => 'platinum_footer',
+				'container'      => false,
+				'menu_class'     => 'platinum-footer-menu-list',
+				'fallback_cb'    => 'platinum_footer_menu_fallback',
+			) );
+			?>
 		</nav>
 	</div>
 	<div class="platinum-footer-bottom">
