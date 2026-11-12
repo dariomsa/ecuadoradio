@@ -38,6 +38,22 @@ $platinum_brand_url = $platinum_is_quito ? home_url( '/radio-quito/' ) : $platin
 			) );
 			?>
 		</nav>
-		<?php require __DIR__ . '/social-links.php'; ?>
+		<div class="platinum-header-actions">
+			<?php require __DIR__ . '/social-links.php'; ?>
+			<button class="platinum-search-toggle" type="button" aria-expanded="false" aria-controls="platinum-search-panel" aria-label="<?php esc_attr_e( 'Abrir búsqueda', 'platinum-home' ); ?>" data-open-label="<?php esc_attr_e( 'Abrir búsqueda', 'platinum-home' ); ?>" data-close-label="<?php esc_attr_e( 'Cerrar búsqueda', 'platinum-home' ); ?>">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6"></circle><path d="m16 16 4 4"></path></svg>
+			</button>
+		</div>
+	</div>
+	<div class="platinum-search-panel" id="platinum-search-panel" hidden>
+		<div class="platinum-container">
+			<form class="platinum-search-form" role="search" method="get" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+				<label for="platinum-search-field"><?php esc_html_e( 'Buscar en Ecuadoradio', 'platinum-home' ); ?></label>
+				<div class="platinum-search-form-controls">
+					<input id="platinum-search-field" type="search" name="s" placeholder="<?php esc_attr_e( 'Escriba su búsqueda', 'platinum-home' ); ?>" autocomplete="off">
+					<button type="submit"><?php esc_html_e( 'Buscar', 'platinum-home' ); ?></button>
+				</div>
+			</form>
+		</div>
 	</div>
 </header>

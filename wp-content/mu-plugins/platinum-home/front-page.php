@@ -3,16 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 $news_page = max( 1, absint( get_query_var( 'noticias_pagina', 1 ) ) );
-$news      = new WP_Query( array(
-	'post_type'           => 'post',
-	'post_status'         => 'publish',
-	'category_name'       => 'noticias',
-	'posts_per_page'      => 4,
-	'paged'               => $news_page,
-	'orderby'             => 'date',
-	'order'               => 'DESC',
-	'ignore_sticky_posts' => true,
-) );
+$news      = new WP_Query( platinum_home_news_query_args( $news_page ) );
 $stream    = get_theme_mod( 'platinum_stream', 'https://example.com/radio-platinum.mp3' );
 $video_source = esc_url_raw( get_theme_mod( 'platinum_video', '' ) );
 $video        = '';
@@ -80,10 +71,10 @@ $home      = home_url( '/' );
 		<?php endif; ?>
 	</section>
 </div>
-<?php if ( $news->post_count > 2 ) : ?>
+<?php if ( $news->post_count > 2 || $news->max_num_pages > $news_page ) : ?>
 	<section class="platinum-more-news" aria-labelledby="mas-noticias-heading">
 		<h2 id="mas-noticias-heading"><?php esc_html_e( 'Más noticias', 'platinum-home' ); ?></h2>
-		<div class="platinum-more-news-grid">
+		<div class="platinum-more-news-grid" id="platinum-more-news-results" data-news-results>
 			<?php for ( $news_index = 2; $news_index < $news->post_count; $news_index++ ) : $news->the_post(); ?>
 				<?php require __DIR__ . '/news-item.php'; ?>
 			<?php endfor; ?>
@@ -91,6 +82,14 @@ $home      = home_url( '/' );
 	</section>
 <?php endif; ?>
 <?php wp_reset_postdata(); ?>
+		<?php if ( $news->max_num_pages > $news_page ) : ?>
+			<div class="platinum-load-more-wrap">
+				<button class="platinum-load-more" type="button" data-news-load-more data-next-page="<?php echo esc_attr( $news_page + 1 ); ?>" data-ajax-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'platinum_load_more_news' ) ); ?>" aria-controls="platinum-more-news-results">
+					<?php esc_html_e( 'Cargar + Noticias', 'platinum-home' ); ?>
+				</button>
+				<span class="platinum-load-more-status" data-news-load-status role="status" aria-live="polite"></span>
+			</div>
+		<?php endif; ?>
 		<?php
 		$pagination = paginate_links( array(
 			'base'      => add_query_arg( 'noticias_pagina', '%#%', $home ) . '#noticias',

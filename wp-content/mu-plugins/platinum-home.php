@@ -120,6 +120,44 @@ add_filter( 'query_vars', function ( $vars ) {
 	return $vars;
 } );
 
+/** Shared query arguments for the latest news on the homepage and its load-more request. */
+function platinum_home_news_query_args( $page = 1 ) {
+	return array(
+		'post_type'           => 'post',
+		'post_status'         => 'publish',
+		'category_name'       => 'noticias',
+		'posts_per_page'      => 4,
+		'paged'               => max( 1, absint( $page ) ),
+		'orderby'             => 'date',
+		'order'               => 'DESC',
+		'ignore_sticky_posts' => true,
+	);
+}
+
+/** Return one additional homepage news page without navigating away from the current scroll position. */
+function platinum_home_load_more_news() {
+	check_ajax_referer( 'platinum_load_more_news', 'nonce' );
+
+	$page = max( 2, absint( $_POST['page'] ?? 2 ) );
+	$news = new WP_Query( platinum_home_news_query_args( $page ) );
+
+	ob_start();
+	while ( $news->have_posts() ) {
+		$news->the_post();
+		require __DIR__ . '/platinum-home/news-item.php';
+	}
+	$html = ob_get_clean();
+	wp_reset_postdata();
+
+	wp_send_json_success( array(
+		'html'     => $html,
+		'next_page' => $page + 1,
+		'has_more' => $page < $news->max_num_pages,
+	) );
+}
+add_action( 'wp_ajax_platinum_load_more_news', 'platinum_home_load_more_news' );
+add_action( 'wp_ajax_nopriv_platinum_load_more_news', 'platinum_home_load_more_news' );
+
 add_filter( 'template_include', function ( $template ) {
 	if ( is_front_page() && ! is_feed() && ! is_embed() ) {
 		return __DIR__ . '/platinum-home/front-page.php';
@@ -160,10 +198,15 @@ add_action( 'wp_enqueue_scripts', function () {
 		return;
 	}
 	$base = plugin_dir_url( __FILE__ ) . 'platinum-home/assets/';
-	wp_enqueue_style( 'platinum-home', $base . 'home.css', array(), '1.12.0' );
-	wp_enqueue_script( 'platinum-home', $base . 'home.js', array(), '1.2.0', true );
+	wp_enqueue_style( 'platinum-home', $base . 'home.css', array(), '1.14.0' );
+	wp_enqueue_script( 'platinum-home', $base . 'home.js', array(), '1.4.0', true );
 	wp_enqueue_style( 'platinum-accessibility', $base . 'accessibility.css', array( 'platinum-home' ), '1.1.0' );
 	wp_enqueue_script( 'platinum-accessibility', $base . 'accessibility.js', array(), '1.1.0', true );
+	if ( is_page( 42 ) ) {
+		wp_enqueue_style( 'platinum-leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', array(), '1.9.4' );
+		wp_enqueue_script( 'platinum-leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', array(), '1.9.4', true );
+		wp_enqueue_script( 'platinum-mailbox-map', $base . 'mailbox-map.js', array( 'platinum-leaflet' ), '1.0.0', true );
+	}
 }, 100 );
 
 /** Keep the accessibility panel outside page content and its color filters. */
