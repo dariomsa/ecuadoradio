@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 $stream = get_theme_mod( 'platinum_quito_stream', 'https://example.com/radio-quito.mp3' );
-$video  = platinum_home_video_url( get_theme_mod( 'platinum_quito_video', 'https://www.youtube.com/watch?v=jNQXAC9IVRw' ) );
+$video  = platinum_home_facebook_video_url( get_theme_mod( 'platinum_quito_video', '' ) );
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -27,12 +27,12 @@ $video  = platinum_home_video_url( get_theme_mod( 'platinum_quito_video', 'https
 				<p class="platinum-stream-message" role="status" hidden><?php esc_html_e( 'La señal estará disponible próximamente. El enlace de streaming es provisional.', 'platinum-home' ); ?></p>
 			</div>
 			<div class="platinum-video-section">
-				<h2 class="platinum-video-heading"><?php esc_html_e( 'Radio en video', 'platinum-home' ); ?><span>YouTube</span></h2>
+				<h2 class="platinum-video-heading"><?php esc_html_e( 'Radio en video', 'platinum-home' ); ?><span>Facebook</span></h2>
 				<div class="platinum-video-frame">
 					<?php if ( $video ) : ?>
 						<iframe src="<?php echo esc_url( $video ); ?>" title="<?php esc_attr_e( 'Radio Quito en vivo', 'platinum-home' ); ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 					<?php else : ?>
-						<p><?php esc_html_e( 'Configura el video de Radio Quito próximamente.', 'platinum-home' ); ?></p>
+						<p><?php esc_html_e( 'El video de Facebook no está disponible en este momento.', 'platinum-home' ); ?></p>
 					<?php endif; ?>
 				</div>
 			</div>

@@ -14,7 +14,25 @@ $news      = new WP_Query( array(
 	'ignore_sticky_posts' => true,
 ) );
 $stream    = get_theme_mod( 'platinum_stream', 'https://example.com/radio-platinum.mp3' );
-$video     = platinum_home_video_url( get_theme_mod( 'platinum_video', 'https://www.youtube.com/watch?v=jNQXAC9IVRw' ) );
+$video_source = esc_url_raw( get_theme_mod( 'platinum_video', '' ) );
+$video        = '';
+
+if ( $video_source ) {
+	$response = wp_safe_remote_get( $video_source, array(
+		'timeout'     => 5,
+		'redirection' => 2,
+	) );
+
+	if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+		$candidate = esc_url_raw( trim( wp_remote_retrieve_body( $response ) ) );
+		$parts     = wp_parse_url( $candidate );
+		$host      = strtolower( $parts['host'] ?? '' );
+
+		if ( 'https' === ( $parts['scheme'] ?? '' ) && in_array( $host, array( 'facebook.com', 'www.facebook.com' ), true ) && '/plugins/video.php' === ( $parts['path'] ?? '' ) ) {
+			$video = $candidate;
+		}
+	}
+}
 $home      = home_url( '/' );
 ?>
 <!doctype html>
@@ -39,12 +57,12 @@ $home      = home_url( '/' );
 			<p class="platinum-stream-message" role="status" hidden>La señal estará disponible próximamente. El enlace de streaming es provisional.</p>
 		</div>
 		<div class="platinum-video-section" id="video">
-			<h2 class="platinum-video-heading"><?php esc_html_e( 'Radio en video', 'platinum-home' ); ?><span>YouTube</span></h2>
+			<h2 class="platinum-video-heading"><?php esc_html_e( 'Radio en video', 'platinum-home' ); ?><span>Facebook</span></h2>
 			<div class="platinum-video-frame">
 				<?php if ( $video ) : ?>
 					<iframe src="<?php echo esc_url( $video ); ?>" title="Radio Platinum — Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 				<?php else : ?>
-					<p>Configura un enlace de YouTube en Personalizar → Portada Radio Platinum.</p>
+					<p>El video de Facebook no está disponible en este momento.</p>
 				<?php endif; ?>
 			</div>
 		</div>

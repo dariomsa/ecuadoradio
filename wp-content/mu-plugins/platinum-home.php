@@ -49,20 +49,20 @@ add_action( 'init', function () {
 		$primary = $primary ?: wp_create_nav_menu( 'Menú principal Radio Platinum' );
 		if ( ! is_wp_error( $primary ) ) {
 			$primary_id = is_object( $primary ) ? $primary->term_id : $primary;
-			$platinum   = home_url( '/radio-platinum/' );
-			$quito      = home_url( '/radio-quito/' );
+			$platinum   = '/radio-platinum/';
+			$quito      = '/radio-quito/';
 			$platinum_parent = wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Radio Platinum', 'menu-item-url' => $platinum, 'menu-item-status' => 'publish', 'menu-item-type' => 'custom' ) );
 			$quito_parent    = wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Radio Quito', 'menu-item-url' => $quito, 'menu-item-status' => 'publish', 'menu-item-type' => 'custom' ) );
-			wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Inicio', 'menu-item-url' => home_url( '/' ), 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-position' => 1 ) );
+			wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Inicio', 'menu-item-url' => '/', 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-position' => 1 ) );
 			if ( ! is_wp_error( $platinum_parent ) ) {
 				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Inicio', 'menu-item-url' => $platinum, 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $platinum_parent ) );
-				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Audios', 'menu-item-url' => home_url( '/catalogo-audios-platinum/' ), 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $platinum_parent ) );
-				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Programación', 'menu-item-url' => platinum_programming_category_url( 'programacion-platinum' ), 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $platinum_parent ) );
+				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Audios', 'menu-item-url' => '/catalogo-audios-platinum/', 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $platinum_parent ) );
+				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Programación', 'menu-item-url' => platinum_relative_internal_menu_url( platinum_programming_category_url( 'programacion-platinum' ) ), 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $platinum_parent ) );
 			}
 			if ( ! is_wp_error( $quito_parent ) ) {
 				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Inicio', 'menu-item-url' => $quito, 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $quito_parent ) );
-				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Audios', 'menu-item-url' => home_url( '/catalogo-audios-quito/' ), 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $quito_parent ) );
-				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Programación', 'menu-item-url' => platinum_programming_category_url( 'programacion-quito' ), 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $quito_parent ) );
+				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Audios', 'menu-item-url' => '/catalogo-audios-quito/', 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $quito_parent ) );
+				wp_update_nav_menu_item( $primary_id, 0, array( 'menu-item-title' => 'Programación', 'menu-item-url' => platinum_relative_internal_menu_url( platinum_programming_category_url( 'programacion-quito' ) ), 'menu-item-status' => 'publish', 'menu-item-type' => 'custom', 'menu-item-parent-id' => $quito_parent ) );
 			}
 			$locations['platinum_primary'] = $primary_id;
 		}
@@ -82,6 +82,38 @@ add_action( 'init', function () {
 
 	set_theme_mod( 'nav_menu_locations', $locations );
 }, 30 );
+
+/** Convert the already saved internal menu links to root-relative paths once. */
+add_action( 'init', function () {
+	if ( get_option( 'platinum_home_relative_menu_links_updated' ) ) {
+		return;
+	}
+
+	$locations = get_nav_menu_locations();
+	$menu_ids  = array_filter( array(
+		$locations['platinum_primary'] ?? 0,
+		$locations['platinum_footer'] ?? 0,
+	) );
+
+	foreach ( array_unique( $menu_ids ) as $menu_id ) {
+		$items = wp_get_nav_menu_items( $menu_id );
+		foreach ( $items ?: array() as $item ) {
+			if ( 'custom' !== $item->type ) {
+				continue;
+			}
+
+			$relative_url = platinum_relative_internal_menu_url( $item->url );
+			if ( null === $relative_url || $relative_url === $item->url ) {
+				continue;
+			}
+
+			update_post_meta( $item->ID, '_menu_item_url', $relative_url );
+			clean_post_cache( $item->ID );
+		}
+	}
+
+	update_option( 'platinum_home_relative_menu_links_updated', '1', false );
+}, 40 );
 
 add_filter( 'query_vars', function ( $vars ) {
 	$vars[] = 'noticias_pagina';
@@ -222,6 +254,41 @@ add_action( 'customize_register', function ( $customizer ) {
 	}
 } );
 
+/** Read a Facebook iframe URL from a configured station video URL. */
+function platinum_home_facebook_video_url( $source_url ) {
+	$source_url = esc_url_raw( $source_url );
+	$source     = wp_parse_url( $source_url );
+	$video      = '';
+
+	if ( ! in_array( $source['scheme'] ?? '', array( 'http', 'https' ), true ) || empty( $source['host'] ) ) {
+		return $video;
+	}
+
+	$cache_key = 'platinum_home_video_' . md5( $source_url );
+	$cached    = get_transient( $cache_key );
+	if ( false !== $cached ) {
+		return is_string( $cached ) ? $cached : $video;
+	}
+
+	$response = wp_safe_remote_get( $source_url, array(
+		'timeout'     => 5,
+		'redirection' => 2,
+	) );
+
+	if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+		$candidate = esc_url_raw( trim( wp_remote_retrieve_body( $response ) ) );
+		$parts     = wp_parse_url( $candidate );
+		$host      = strtolower( $parts['host'] ?? '' );
+
+		if ( 'https' === ( $parts['scheme'] ?? '' ) && in_array( $host, array( 'facebook.com', 'www.facebook.com' ), true ) && '/plugins/video.php' === ( $parts['path'] ?? '' ) ) {
+			$video = $candidate;
+		}
+	}
+
+	set_transient( $cache_key, $video, $video ? 5 * MINUTE_IN_SECONDS : MINUTE_IN_SECONDS );
+	return $video;
+}
+
 /** Convert a YouTube watch, share, or embed URL into a safe embed URL. */
 function platinum_home_video_url( $url ) {
 	$parts = wp_parse_url( $url );
@@ -287,6 +354,32 @@ function platinum_is_programming_category() {
 function platinum_programming_category_url( $slug ) {
 	$category = get_category_by_slug( $slug );
 	return $category ? get_category_link( $category ) : home_url( '/' );
+}
+
+/** Return a root-relative URL when the URL belongs to this site. */
+function platinum_relative_internal_menu_url( $url ) {
+	$parts = wp_parse_url( $url );
+	if ( ! is_array( $parts ) || empty( $parts['host'] ) ) {
+		return $url;
+	}
+
+	$home_host = strtolower( wp_parse_url( home_url( '/' ), PHP_URL_HOST ) ?? '' );
+	$host      = strtolower( $parts['host'] );
+	$hosts     = array_filter( array( $home_host, '89.127.235.30', 'ecuadoradio.ec', 'www.ecuadoradio.ec' ) );
+	if ( ! in_array( $host, $hosts, true ) ) {
+		return null;
+	}
+
+	$relative = $parts['path'] ?? '/';
+	$relative = '' !== $relative ? $relative : '/';
+	if ( isset( $parts['query'] ) ) {
+		$relative .= '?' . $parts['query'];
+	}
+	if ( isset( $parts['fragment'] ) ) {
+		$relative .= '#' . $parts['fragment'];
+	}
+
+	return $relative;
 }
 
 /** Output a stable fallback while the first WordPress menu is being created. */

@@ -3,7 +3,7 @@
 defined( 'ABSPATH' ) || exit;
 
 $stream = get_theme_mod( 'platinum_stream', 'https://example.com/radio-platinum.mp3' );
-$video  = platinum_home_video_url( get_theme_mod( 'platinum_station_video', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' ) );
+$video  = platinum_home_facebook_video_url( get_theme_mod( 'platinum_station_video', '' ) );
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -27,12 +27,12 @@ $video  = platinum_home_video_url( get_theme_mod( 'platinum_station_video', 'htt
 				<p class="platinum-stream-message" role="status" hidden><?php esc_html_e( 'La señal estará disponible próximamente. El enlace de streaming es provisional.', 'platinum-home' ); ?></p>
 			</div>
 			<div class="platinum-video-section" id="video">
-				<h2 class="platinum-video-heading"><?php esc_html_e( 'Radio en video', 'platinum-home' ); ?><span>YouTube</span></h2>
+				<h2 class="platinum-video-heading"><?php esc_html_e( 'Radio en video', 'platinum-home' ); ?><span>Facebook</span></h2>
 				<div class="platinum-video-frame">
 					<?php if ( $video ) : ?>
 						<iframe src="<?php echo esc_url( $video ); ?>" title="<?php esc_attr_e( 'Radio Platinum en vivo', 'platinum-home' ); ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 					<?php else : ?>
-						<p><?php esc_html_e( 'Configura el video de Radio Platinum en Personalizar → Portada Radio Platinum.', 'platinum-home' ); ?></p>
+						<p><?php esc_html_e( 'El video de Facebook no está disponible en este momento.', 'platinum-home' ); ?></p>
 					<?php endif; ?>
 				</div>
 			</div>
